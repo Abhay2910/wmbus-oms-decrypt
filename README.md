@@ -1,38 +1,34 @@
-# wM-Bus / OMS Volume2 - AES-128 Decrypt (Reference solution)
+# wmbus-oms-decrypt
 
-## Goal
-Decrypt the provided wM-Bus/OMS telegram (AES-128) using the provided key and produce human-readable plaintext.
+Reference implementation for decrypting **Wireless M-Bus / OMS Volume 2** telegrams using **AES-128-CBC** with IV construction and padding handling.  
+Built in C++ with OpenSSL.
 
-This implementation:
-- parses a raw wM-Bus telegram (hex)
-- extracts link-layer fields (L, C, A)
-- constructs the AES IV per OMS Volume 2 (Annex N)
-- decrypts using AES-128-CBC (OpenSSL)
-- strips OMS/TPL padding and prints plaintext (hex + ASCII)
+## Features
+- Parses raw wM-Bus telegram (hex string).
+- Extracts L, C, A fields and user data.
+- Constructs the IV according to OMS Annex N (address + AccessNo).
+- Decrypts with AES-128-CBC (OpenSSL).
+- Handles OMS TPL padding (0x2F) and ASCII output.
+- Provides diagnostics (key, IV, lengths, etc.).
 
-**Assignment file used:** (uploaded). :contentReference[oaicite:7]{index=7}
+## Requirements
+- CMake (>= 3.10)
+- OpenSSL library
+- C++17 compiler
 
-## Important OMS references
-- OMS Annex N shows how the AES-CBC IV is constructed: **IV = M field + A field + 8 bytes AccessNo (LSB first)**. Example and diagram in Annex N. :contentReference[oaicite:8]{index=8}  
-- Table of security profiles: which profile uses AES-CBC, which uses AES-CCM/GCM/CMAC etc. (Profile A = AES128-CBC, Profile B = AES128-CBC + CMAC, Profile D = AES128-CCM, ...). Use the profile declared in the configuration field (CF) to decide mode. :contentReference[oaicite:9]{index=9}
-
-## How the code constructs the IV (summary)
-1. Parse frame bytes.
-2. Address (8 bytes) is `raw[2]` .. `raw[9]`.
-3. Access Number (AccessNo) is taken from the fixed header inside the user data (we use `userdata[8]` as the AccessNo byte).
-4. IV := address(8) || (AccessNo repeated 8 times). (Matches Annex N examples.) :contentReference[oaicite:10]{index=10}
-
-## Build (Linux)
+## Build & Run
 ```bash
 # install dependencies (Ubuntu example)
-sudo apt update
-sudo apt install -y build-essential cmake libssl-dev git
+sudo apt install build-essential cmake libssl-dev
+
+# clone repo
+git clone https://github.com/<your-username>/wmbus-oms-decrypt.git
+cd wmbus-oms-decrypt
 
 # build
 mkdir build && cd build
 cmake ..
 make
 
-# run (binary placed in build/)
+# run
 ./wmbus_decrypt
-
