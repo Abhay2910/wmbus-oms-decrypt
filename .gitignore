@@ -1,0 +1,17 @@
+# build artifacts
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# binaries
+*.o
+*.out
+*.exe
+*.a
+*.so
+
+# system files
+.DS_Store
+Thumbs.db
